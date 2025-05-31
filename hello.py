@@ -51,13 +51,29 @@ agent1 = Agent(
 
 # Abhi nichay valy code may issue bas ya hay kay hamary pass chat history nahi hain vo store kay liay ham use krin gay
 
+@cl.on_chat_start  # ya decorator use kia tha on_chat_start jo kay chat start hone par trigger hota hai
+async def handle_chat_start():
+    cl.user_session.set("history", [])
+    await cl.Message(
+        content="Welcome to the Panaversity Support Agent! How can I assist you today?"
+    ).send()
+
 # NOTE Ham nay ya kia phalay nichay valay code ko uncmmit kia phir jo auper hamara result vala code tha usay copy kia change only ya kia kay await Runner.run kia bas await lagay aur run_sync hata diya .run kia , aur input may message.content da diya ta kay jo ham vaha output dain vo yaha dikhay hamin aur run_config ko bhi pass kia. End may await kar kay cl.Message(content=result.final_output).send() kar dia
 
 @cl.on_message  # ya decorator use kia tha on_message jo kay chanilit ka hai aur messages receive karne kay liye hai
 async def handle_message(message: cl.Message):
+    history = cl.user_session.get("history") #abhi hamay history ko set karna hai ta kay hamara chat history store ho sake
+
+    history.append(
+        {"role": "user", "content": message.content}
+    )
     result = await Runner.run(
         agent1,
-        input=message.content,  #jo ham message karin gay vo ais may a jay ga input
+        input=history,  #jo ham message karin gay vo ais may a jay ga input puri history ke sath
         run_config=run_config,
     )
+    history.append(
+        {"role": "assistant", "content": result.final_output}
+    )
+    cl.user_session.set("history", history)  #ab hamay history ko update karna hai ta kay hamara chat history store ho sake
     await cl.Message(content=result.final_output).send()
