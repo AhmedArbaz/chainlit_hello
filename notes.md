@@ -238,4 +238,10 @@ uv run chainlit run hello.py -w
 
 - Now hamaray bot kay pass chat history nahi hay eg. what is my last message (said sorry)
 
-- 
+## Kafka usage
+
+ais may ham messages aur result ko kafka ke sath store karen
+
+run the code
+
+uv run chainlit run hello.py -w
