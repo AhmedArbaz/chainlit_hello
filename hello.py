@@ -3,6 +3,8 @@ import chainlit as cl
 from agents import Agent, RunConfig, AsyncOpenAI,OpenAIChatCompletionsModel,Runner
 from dotenv import load_dotenv, find_dotenv
 import os
+
+from openai.types.responses import ResponseTextDeltaEvent
 # Load environment variables
 load_dotenv(find_dotenv())
 
@@ -17,7 +19,7 @@ provider = AsyncOpenAI(
 
     # Step 2: Model
 model = OpenAIChatCompletionsModel(
-    model="gemini-2.0-flash",
+    model="gemini-2.0-flash",  #streaming karty time ais ko ham nay 2.0-flash say 1.5-pro pay kar dia hay
     openai_client=provider,
 )
 
@@ -64,14 +66,33 @@ async def handle_chat_start():
 async def handle_message(message: cl.Message):
     history = cl.user_session.get("history") #abhi hamay history ko set karna hai ta kay hamara chat history store ho sake
 
+
+    msg = cl.Message(content="") # ab ham nay message may content empty kar dia ta kay streaming hamin sahi say nazar ay
+    await msg.send()
+
+
     history.append(
         {"role": "user", "content": message.content}
     )
-    result = await Runner.run(
-        agent1,
-        input=history,  #jo ham message karin gay vo ais may a jay ga input puri history ke sath
-        run_config=run_config,
+    # result = await Runner.run(
+    #     agent1,
+    #     input=history,  #jo ham message karin gay vo ais may a jay ga input puri history ke sath
+    #     run_config=run_config,
+    # )
+
+    result = Runner.run_streamed(
+         agent1,
+         input=history,  #jo ham message karin gay vo ais may a jay ga input puri history ke sath
+         run_config=run_config,
     )
+    # ya auper vala result commit kar kay ham nay ais ko run_streamed kar dia ta kay streaming may kam hon
+
+    async for event in result.stream_events():
+        if event.type == 'raw_respnse_event' and isinstance(event.data, ResponseTextDeltaEvent):
+            # print(event.data.delta, end="", flush=True)
+           await msg.stream_token(event.data.delta)
+            # await msg.send()
+
     history.append(
         {"role": "assistant", "content": result.final_output}
     )

@@ -245,3 +245,23 @@ ais may ham messages aur result ko kafka ke sath store karen
 run the code
 
 uv run chainlit run hello.py -w
+
+# Streaming
+
+learn-agentic-ai/01_ai_agents_first/07_streaming/
+
+streaming ya hay kay hamin messages ko real time may stream karen(matlab abhi ham koi message dain to direct vo message ata hay ak dam lakin streaming may ak ak line kar kay jasay type hota hay vasa ak animation kay sath ata hay )
+
+- Jaha ham run kar rhaay hoty hain Runner.run_streamed laga datay hain
+- hamara agent1 ko bhi change karna hai ta kay vo streaming may run ho sake
+- Abhi ham nay only run kia tha to direct a raha tha
+
+- dakhin below ham nay run_streamed kia aur sath may ham nay if condition may type di hay raw_response_event jo kay streaming perform karta hay
+
+  result = Runner.run_streamed(agent, input="Please tell me 5 jokes.")
+    async for event in result.stream_events():
+        if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
+            print(event.data.delta, end="", flush=True)
+
+- In hello.py ham nay sab say phalay model ka name 2.0 say 1.5 kar dia hay
+
