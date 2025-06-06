@@ -193,9 +193,7 @@ agent1 = Agent(
 
 # print(result.final_output)
 
-
 # Ab ham chainlit ke saath integrate karte hain (ta kay hum isay web par bhi istemal kar saken) to nichay vala code uncomment karen:
-
 
 # Abhi nichay valy code may issue bas ya hay kay hamary pass chat history nahi hain vo store kay liay ham use krin gay
 
@@ -265,3 +263,67 @@ streaming ya hay kay hamin messages ko real time may stream karen(matlab abhi ha
 
 - In hello.py ham nay sab say phalay model ka name 2.0 say 1.5 kar dia hay
 
+## Adding Tools Creating and use in our Chatbot
+
+from agents.tool import function_tool
+import kia funtion tool ko ham tool calling by function_tool ko use karen gay
+
+Baki jo 3 ways hain vo ap docs say hi dakh lain
+
+- first tool banaya below (jo kay weather check karta hay)
+
+```
+@function_tool("get_weather")
+def get_weather(location:str) -> str:
+  """
+  Fetch the weather for a given location.
+  """
+
+  #Example logic
+  return f"The weather in {location} is sunny."
+
+  ais thara say hamara tool create hota hay
+```
+
+- 2nd tool banaya (ya tool id get karta hay aur aus may jo name hoty hain vo batata hay)
+
+```
+
+@function_tool("piaic_student_finder")
+def student_finder(student_roll: int) -> str:
+  """
+  find the PIAIC student based on the roll number
+  """
+  data = {
+      1: "Qasim",
+      2: "Sir Zia",
+      3: "Daniyal"
+  }
+
+  return data.get(student_roll, "Student not found")
+
+```
+
+  #ya ham nay 2 tools bany 1st get_weather, student_finder
+
+- 3rd step pay ham ais ko agent kay sath integrate karaty hain
+
+```
+import asyncio
+from agents import Agent, Runner
+
+async def main():
+  agent = Agent(
+      name= "Assistant",
+      instructions="you only respond in haikus.",
+      model = model
+  )
+
+  result = await Runner.run(agent,"Use get_weather tool and share temprature in Lahore now")
+  print(result.final_output)
+
+if __name__ == "__main__":
+  asyncio.run(main())
+```
+
+- ais thara hamara tool calling banti hay

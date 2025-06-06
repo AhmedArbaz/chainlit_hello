@@ -5,6 +5,9 @@ from dotenv import load_dotenv, find_dotenv
 import os
 
 from openai.types.responses import ResponseTextDeltaEvent
+
+from agents.tool import function_tool  # ya function tool ko import kia kay ham custom funtions tool bana kay kasay integrate kar sakty hain apny agent kay sath
+
 # Load environment variables
 load_dotenv(find_dotenv())
 
@@ -31,10 +34,22 @@ run_config = RunConfig(
     tracing_disabled=True
     )
 
+
+# ya ham nay apna function ka code paste kar dia aur aus ka name ham agent may paste karin gay
+@function_tool("get_weather")
+def get_weather(location:str) -> str:
+  """
+  Fetch the weather for a given location.
+  """
+
+  #Example logic
+  return f"The weather in {location} is sunny."
+
 # Step 3: Agent
 
 agent1 = Agent(
-    instructions="You are a helpful assistant that can asnwer questions about Chainlit.",name="Panaversity Support Agent"
+    instructions="You are a helpful assistant that can asnwer questions about Chainlit. Use get_weather tool to share get temprature for any location",name="Panaversity Support Agent",
+    tools=[get_weather], # yaha ham nay apna function ko pass kia
 )
 
 #step 4: Run
